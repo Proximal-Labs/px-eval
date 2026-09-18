@@ -1,0 +1,14 @@
+# Native Harbor EnvironmentConfig for frontier-swe-v2 runs on Modal.
+# Copy this file, fill in the values, and pass the copy with --environment.
+# The fields are those of harbor.models.trial.config.EnvironmentConfig.
+# The scripts reject unknown keys.
+type: modal
+kwargs:
+  registry_secret: <modal-secret-name>
+  
+# The tasks deny all other network egress. List the hosts that your agent's
+# installer and your model provider need, like "api.anthropic.com"
+extra_allowed_hosts: []
+# Environment variables for the sandbox. The scripts add TASK_BUDGET_SECS from each task's
+# agent budget and apply the task's job.yaml profile on top of this file.
+env: {}
