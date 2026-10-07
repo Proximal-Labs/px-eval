@@ -1,0 +1,19 @@
+# A small task to test px-eval end to end on Modal. The oracle agent runs solution/solve.sh.
+[agent]
+timeout_sec = 300
+
+[verifier]
+timeout_sec = 300
+
+# A separate verifier image, so grading never runs in the agent sandbox.
+[verifier.environment]
+cpus = 1
+memory_mb = 1024
+
+[environment]
+cpus = 1
+memory_mb = 1024
+
+[[artifacts]]
+source = "/app/"
+exclude = ["**/node_modules/**"]

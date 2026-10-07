@@ -8,6 +8,7 @@ from unittest.mock import AsyncMock, patch
 from harbor.models.trial.config import EnvironmentConfig
 
 from px_eval import build_rollout_config, run_rollouts
+from test_grading import SHARED, make_task
 
 
 class RolloutTests(unittest.TestCase):
@@ -16,7 +17,7 @@ class RolloutTests(unittest.TestCase):
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
         self.enterContext(chdir(self.root))  # run_rollouts writes under jobs/ in the cwd
-        self.task = self.root / "task"
+        self.task = make_task(self.root, "task")
 
     def config(self, **kwargs):
         kwargs.setdefault("environment", EnvironmentConfig(type="modal"))
@@ -78,10 +79,19 @@ class RolloutTests(unittest.TestCase):
                 build_rollout_config(**(base | override))
 
     def test_multiple_tasks(self):
-        other = self.root / "other"
+        other = make_task(self.root, "other")
         config = build_rollout_config([self.task, other], agent="codex", model="test",
                                       environment=EnvironmentConfig(type="modal"))
         self.assertEqual([task.path for task in config.tasks], [self.task, other])
+
+    def test_grading_now_needs_a_separate_verifier(self):
+        shared = make_task(self.root, "shared", SHARED)
+        with self.assertRaisesRegex(ValueError, "shared"):
+            build_rollout_config([self.task, shared], agent="codex", model="test",
+                                 environment=EnvironmentConfig(type="modal"))
+        config = build_rollout_config([shared], agent="codex", model="test",
+                                      environment=EnvironmentConfig(type="modal"), verify=False)
+        self.assertTrue(config.verifier.disable)
 
     def test_execution_returns_harbor_result_without_interpreting_it(self):
         config = self.config()

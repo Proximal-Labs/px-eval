@@ -23,7 +23,8 @@ parser.add_argument("--model", action="append", required=True, metavar="PROVIDER
 parser.add_argument("--task", action="append", metavar="NAME", help="Run only this task; repeatable")
 parser.add_argument("--attempts", type=int, default=1, help="Rollouts per task and model")
 parser.add_argument("--concurrent", type=int, default=1, help="Trials to run at the same time")
-parser.add_argument("--no-verify", dest="verify", action="store_false", help="Skip the task verifier after the agent")
+parser.add_argument("--grade", choices=["now", "later"], default="now",
+                    help="Grade each rollout right after its agent, or later with grade.py")
 parser.add_argument("--agent-timeout", type=int, metavar="SECONDS",
                     help="Cap the agent phase; useful for smoke runs")
 parser.add_argument("--verifier-timeout", type=int, metavar="SECONDS",
@@ -47,7 +48,7 @@ for model in args.model:
     for runtime, group in groups.values():
         config = build_rollout_config(
             group, agent=args.agent, model=model, environment=runtime,
-            n_attempts=args.attempts, n_concurrent_trials=args.concurrent, verify=args.verify,
+            n_attempts=args.attempts, n_concurrent_trials=args.concurrent, verify=args.grade == "now",
         )
         if args.agent_timeout is not None:
             config.agents[0].override_timeout_sec = args.agent_timeout

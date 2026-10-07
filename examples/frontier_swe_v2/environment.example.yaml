@@ -3,6 +3,9 @@
 # The fields are those of harbor.models.trial.config.EnvironmentConfig.
 # The scripts reject unknown keys.
 type: modal
+# Optional: move /app from the agent sandbox to the verifier sandbox as a Modal snapshot,
+# not through this computer.
+# import_path: px_eval.modal_snapshot:SnapshotModalEnvironment
 kwargs:
   registry_secret: <modal-secret-name>
   

@@ -8,9 +8,9 @@ These scripts show how to use `px_eval` with the frontier-swe-v2 tasks.
 2. Copy `environment.example.yaml` to a file of your own and fill in the values.
 3. Export the credentials for your model provider and for Modal.
 
-Both scripts take the `tasks/` directory of the clone as their first argument.
-Both scripts write their outputs under `jobs/` in the current directory.
-Both scripts apply each task's `job.yaml` runtime profile on top of your configuration file, and set `TASK_BUDGET_SECS` to the task's agent budget.
+All scripts take the `tasks/` directory of the clone as their first argument.
+All scripts write their outputs under `jobs/` in the current directory.
+All scripts apply each task's `job.yaml` runtime profile on top of your configuration file, and set `TASK_BUDGET_SECS` to the task's agent budget.
 The rollout script runs one Harbor job per model and runtime profile.
 
 ## Check the images
@@ -41,4 +41,17 @@ The script prints the job directory and the job stats.
 The stats name each trial with its reward and any exception.
 The script stops at the first job that does not launch.
 Use `--task NAME` to run one task. Use `--attempts N` for repeated rollouts.
-Use `--no-verify` to skip the verifier.
+Use `--grade later` to run only the agents and grade later with `grade.py`.
+
+## Grade rollouts
+
+The grading script grades the finished trials of one or more rollout jobs. Each trial gets a new sandbox from
+the task's verifier image. The script copies the recorded agent outputs and artifacts into this sandbox.
+
+```sh
+uv run python examples/frontier_swe_v2/grade.py /path/to/frontier-swe-v2/tasks \
+  jobs/<job-a> jobs/<job-b> --environment environment.yaml
+```
+
+Each source job gets one new Harbor job under `jobs/`. The source job does not change.
+Use `--concurrent N` and `--verifier-timeout SECONDS` as with the rollout script.
