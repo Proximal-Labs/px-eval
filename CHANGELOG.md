@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- `build_grade_config` and `run_grades` grade a recorded rollout job: each recorded trial is re-verified in a fresh verifier environment with Harbor's native regrade. The agent is not re-run and the source job is not modified.
+- `build_rollout_config` accepts `agent_kwargs`, passed to the agent unchanged. A custom agent can be given as an import path in `agent`.
+- `run_job` runs any job built by this package. `run_rollouts` remains as an alias.
+
 ## 0.1.0 (unreleased)
 
 First release, prepared for frontier-swe-v2.
