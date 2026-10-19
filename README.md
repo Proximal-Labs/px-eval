@@ -29,7 +29,8 @@ Each run takes a native Harbor `EnvironmentConfig` as a YAML or JSON file. Copy
 - `extra_allowed_hosts` lists the hosts that your agent installer and model provider need. The tasks deny all other egress.
 - `env` sets variables in the sandbox.
 
-The example scripts apply each task's `job.yaml` profile on top of this file and set `TASK_BUDGET_SECS` from the task's agent budget.
+The example scripts apply each task's `job.yaml` profile on top of this file and set `TASK_BUDGET_SECS` from the task's agent budget
+(for Proximus, from its work budget; see `examples/frontier_swe_v2/README.md`).
 
 ## Run frontier-swe-v2
 

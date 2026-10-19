@@ -43,6 +43,18 @@ class RolloutTests(unittest.TestCase):
         self.assertFalse(config.jobs_dir.exists())
         self.assertNotIn("job_name", config.model_fields_set)
 
+    def test_agent_kwargs_reach_the_agent_config(self):
+        kwargs = {"time_budget_sec": 600}
+        config = self.config(agent_kwargs=kwargs)
+        kwargs["time_budget_sec"] = 1
+        self.assertEqual(config.agents[0].kwargs, {"time_budget_sec": 600})
+        self.assertEqual(self.config().agents[0].kwargs, {})
+
+    def test_agent_env_reaches_the_agent_config(self):
+        config = self.config(agent_env={"ANTHROPIC_API_KEY": "${MY_KEY}"})
+        self.assertEqual(config.agents[0].env, {"ANTHROPIC_API_KEY": "${MY_KEY}"})
+        self.assertEqual(self.config().agents[0].env, {})
+
     def test_options(self):
         config = self.config(environment=EnvironmentConfig(type="docker"), verify=False, n_attempts=2,
                              n_concurrent_trials=3)
