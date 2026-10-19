@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 from pathlib import Path
+from typing import Any
 
 from harbor.job import Job
 from harbor.models.job.config import JobConfig
@@ -33,10 +34,14 @@ def build_rollout_config(
     n_attempts: int = 1,
     n_concurrent_trials: int = 1,
     verify: bool = True,
+    agent_kwargs: dict[str, Any] | None = None,
+    agent_env: dict[str, str] | None = None,
 ) -> JobConfig:
     """Build a Harbor job for local tasks and one agent/model.
 
     With `verify`, each trial grades right after its agent, in the task's own verifier sandbox.
+    `agent_kwargs` and `agent_env` are Harbor's `AgentConfig.kwargs` and `AgentConfig.env`
+    (`--ak` and `--ae` of `harbor run`); `env` values may be `${VAR}` templates.
     """
     if not model.strip():
         raise ValueError("model must be non-empty")
@@ -44,7 +49,8 @@ def build_rollout_config(
         require_separate_verifier(task_paths)
     return JobConfig(
         tasks=[TaskConfig(path=path) for path in task_paths],
-        agents=[AgentConfig(name=agent, model_name=model)],
+        agents=[AgentConfig(name=agent, model_name=model, kwargs=dict(agent_kwargs or {}),
+                            env=dict(agent_env or {}))],
         environment=environment.model_copy(deep=True),
         verifier=VerifierConfig(disable=not verify),
         n_attempts=n_attempts,

@@ -14,7 +14,7 @@ from harbor.models.job.config import JobConfig
 from harbor.models.trial.config import EnvironmentConfig
 
 from px_eval import build_grading_config, run_grading
-from profiles import task_environment
+from profiles import is_proximus, task_environment
 
 parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
 parser.add_argument("tasks_root", type=Path, help="The tasks/ directory of a frontier-swe-v2 checkout")
@@ -31,7 +31,12 @@ for job_dir in args.job_dirs:
     source = JobConfig.model_validate_json((job_dir / "config.json").read_text())
     tasks = [args.tasks_root / task.path.name for task in source.tasks]
     # rollout.py puts only tasks with one runtime profile in a job, and a Harbor job has one environment.
-    profiles = (task_environment(task, environment) for task in tasks)
+    # For Proximus, rollout.py set TASK_BUDGET_SECS from the work budget; grade with the same profile.
+    source_agent = source.agents[0]
+    budget = None
+    if is_proximus(source_agent.import_path or source_agent.name or ""):
+        budget = source_agent.kwargs.get("time_budget_sec")
+    profiles = (task_environment(task, environment, budget) for task in tasks)
     runtimes = {runtime.model_dump_json(): runtime for runtime in profiles}
     if len(runtimes) != 1:
         parser.error(f"{job_dir}: the tasks have {len(runtimes)} runtime profiles, expected 1")
