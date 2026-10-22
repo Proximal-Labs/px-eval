@@ -17,3 +17,6 @@ packages = ["src/px_eval"]
 [tool.pyright]
 venv = ".venv"
 venvPath = "."
+
+[tool.uv]
+exclude-newer = "7 days"
